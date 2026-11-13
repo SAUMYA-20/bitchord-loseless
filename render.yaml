@@ -1,0 +1,19 @@
+# Render.com — one-time setup, auto-deploys on every git push.
+# 1. Push this repo to your GitHub.
+# 2. render.com → New + → Blueprint → pick the repo → Apply.
+# 3. Copy the https URL it gives you → paste into BitChord (see README).
+services:
+  - type: web
+    name: bitchord-lossless
+    runtime: docker
+    plan: free
+    autoDeploy: true
+    healthCheckPath: /health
+    envVars:
+      - key: SOURCES
+        value: tidal,archive,gdstudio
+      - key: PROXY
+        value: "0"
+      # - key: ADDON_TOKEN
+      #   sync: false          # set in the dashboard if you want the ?token= gate
+      # - key: LOCAL_FLAC_DIR  # not supported on Render free tier (no disk)
