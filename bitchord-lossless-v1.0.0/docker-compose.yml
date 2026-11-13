@@ -1,0 +1,34 @@
+# One-time setup, auto-updating forever:
+#   docker compose up -d
+# Watchtower then pulls a fresh :latest image every 6 hours (and whenever the
+# CI rebuilds it on git push). No manual redeploys, ever.
+services:
+  bitchord-lossless:
+    build: .
+    # Or use the published image instead of building locally:
+    # image: ghcr.io/your-github-username/bitchord-lossless:latest
+    container_name: bitchord-lossless
+    restart: unless-stopped
+    ports:
+      - "8787:8787"
+    environment:
+      SOURCES: tidal,archive,gdstudio          # add `local` if you mount a library
+      # LOCAL_FLAC_DIR: /music                 # uncomment to serve your own FLACs (real Atmos)
+      # ADDON_TOKEN: change-me                 # optional ?token= gate
+      # PROXY: "1"                              # proxy audio through this process
+    volumes:
+      # - /path/to/your/flac-library:/music:ro
+      - addon-data:/data
+    labels:
+      com.centurylinklabs.watchtower.enable: "true"
+
+  watchtower:
+    image: containrrr/watchtower:latest
+    container_name: watchtower-bitchord
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: --interval 21600 --cleanup --label-enable
+
+volumes:
+  addon-data:
